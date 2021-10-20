@@ -1,7 +1,7 @@
 # PoC - Migrating standalone redis to keydb cluster using envoy's RedisProxy
 
 This is a really simple (and probably flawed in many ways) proof of concept that
-aims to find out whether or not it is a good idea using Envoy's RedisProxy to
+aims to find out whether or not it is a good idea to Envoy's RedisProxy to
 migrate from a standalone redis instance to a KeyDB cluster.
 
 ## Running the environment
@@ -53,3 +53,9 @@ the standalone redis.
 
 The following command will run the same tests as before, but this time stopping
 the standalone redis container instead of the cluster one, making sure that
+
+## Stopping and removing the created containers
+
+```
+make clean
+```
