@@ -23,7 +23,7 @@ making sure all the reads happen only on the former.
 ## Testing some basic operations
 
 The following command will run tests considering the scenario where the reads
-are being made on the standalone instance:
+are being made on the standalone instance (needs `redis-cli`):
 
 ```
 make test-envoy-read-from-single
