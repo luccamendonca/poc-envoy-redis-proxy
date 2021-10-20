@@ -1,0 +1,60 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      protocol: TCP
+      address: 0.0.0.0
+      port_value: 1936
+static_resources:
+  listeners:
+  - name: listener_0
+    address:
+      socket_address:
+        protocol: TCP
+        address: 0.0.0.0
+        port_value: 9091
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.redis_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.redis_proxy.v3.RedisProxy
+          stat_prefix: redis_proxy
+          settings:
+            op_timeout: 1s
+            enable_redirection: true
+          prefix_routes:
+            catch_all_route:
+              # Here we have the opposite routing found on envoy.yaml: mirror
+              # requests to the single redis instead of the cluster.
+              cluster: redis_cluster
+              request_mirror_policy:
+                cluster: standalone_redis
+                exclude_read_commands: true
+  clusters:
+  - name: standalone_redis
+    connect_timeout: 3s
+    type: STRICT_DNS
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: standalone_redis
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: host.docker.internal
+                port_value: 6379
+  - name: redis_cluster
+    connect_timeout: 3s
+    cluster_type:
+      name: envoy.clusters.redis
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: redis_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: host.docker.internal
+                port_value: 7000
